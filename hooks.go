@@ -11,9 +11,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/mochi-mqtt/server/v2/hooks/storage"
-	"github.com/mochi-mqtt/server/v2/packets"
-	"github.com/mochi-mqtt/server/v2/system"
+	"github.com/xyzj/mqtt-server/hooks/storage"
+	"github.com/xyzj/mqtt-server/packets"
+	"github.com/xyzj/mqtt-server/system"
 )
 
 const (
@@ -57,10 +57,8 @@ const (
 	StoredSysInfo
 )
 
-var (
-	// ErrInvalidConfigType indicates a different Type of config value was expected to what was received.
-	ErrInvalidConfigType = errors.New("invalid config type provided")
-)
+// ErrInvalidConfigType indicates a different Type of config value was expected to what was received.
+var ErrInvalidConfigType = errors.New("invalid config type provided")
 
 // HookLoadConfig contains the hook and configuration as loaded from a configuration (usually file).
 type HookLoadConfig struct {

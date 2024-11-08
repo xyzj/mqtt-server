@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mochi-mqtt/server/v2/packets"
 	"github.com/stretchr/testify/require"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 const (
@@ -944,7 +944,6 @@ func TestInlineSubscriptionDelete(t *testing.T) {
 }
 
 func TestInlineSubscribe(t *testing.T) {
-
 	handler := func(cl *Client, sub packets.Subscription, pk packets.Packet) {
 		// handler logic
 	}

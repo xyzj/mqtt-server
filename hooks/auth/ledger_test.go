@@ -7,62 +7,60 @@ package auth
 import (
 	"testing"
 
-	"github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/packets"
 	"github.com/stretchr/testify/require"
+	"github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
-var (
-	checkLedger = Ledger{
-		Users: Users{ // users are allowed by default
-			"mochi-co": {
-				Password: "melon",
-				ACL: Filters{
-					"d/+/f":      Deny,
-					"mochi-co/#": ReadWrite,
-					"readonly":   ReadOnly,
-				},
-			},
-			"suspended-username": {
-				Password: "any",
-				Disallow: true,
-			},
-			"mochi": { // ACL only, will defer to AuthRules for authentication
-				ACL: Filters{
-					"special/mochi": ReadOnly,
-					"secret/mochi":  Deny,
-					"ignored":       ReadWrite,
-				},
+var checkLedger = Ledger{
+	Users: Users{ // users are allowed by default
+		"mochi-co": {
+			Password: "melon",
+			ACL: Filters{
+				"d/+/f":      Deny,
+				"mochi-co/#": ReadWrite,
+				"readonly":   ReadOnly,
 			},
 		},
-		Auth: AuthRules{
-			{Username: "banned-user"},                               // never allow specific username
-			{Remote: "127.0.0.1", Allow: true},                      // always allow localhost
-			{Remote: "123.123.123.123"},                             // disallow any from specific address
-			{Username: "not-mochi", Remote: "111.144.155.166"},      // disallow specific username and address
-			{Remote: "111.*", Allow: true},                          // allow any in wildcard (that isn't the above username)
-			{Username: "mochi", Password: "melon", Allow: true},     // allow matching user/pass
-			{Username: "mochi-co", Password: "melon", Allow: false}, // allow matching user/pass (should never trigger due to Users map)
+		"suspended-username": {
+			Password: "any",
+			Disallow: true,
 		},
-		ACL: ACLRules{
-			{
-				Username: "mochi", // allow matching user/pass
-				Filters: Filters{
-					"a/b/c":     Deny,
-					"d/+/f":     Deny,
-					"mochi/#":   ReadWrite,
-					"updates/#": WriteOnly,
-					"readonly":  ReadOnly,
-					"ignored":   Deny,
-				},
+		"mochi": { // ACL only, will defer to AuthRules for authentication
+			ACL: Filters{
+				"special/mochi": ReadOnly,
+				"secret/mochi":  Deny,
+				"ignored":       ReadWrite,
 			},
-			{Remote: "localhost", Filters: Filters{"$SYS/#": ReadOnly}}, // allow $SYS access to localhost
-			{Username: "admin", Filters: Filters{"$SYS/#": ReadOnly}},   // allow $SYS access to admin
-			{Remote: "001.002.003.004"},                                 // Allow all with no filter
-			{Filters: Filters{"$SYS/#": Deny}},                          // Deny $SYS access to all others
 		},
-	}
-)
+	},
+	Auth: AuthRules{
+		{Username: "banned-user"},                               // never allow specific username
+		{Remote: "127.0.0.1", Allow: true},                      // always allow localhost
+		{Remote: "123.123.123.123"},                             // disallow any from specific address
+		{Username: "not-mochi", Remote: "111.144.155.166"},      // disallow specific username and address
+		{Remote: "111.*", Allow: true},                          // allow any in wildcard (that isn't the above username)
+		{Username: "mochi", Password: "melon", Allow: true},     // allow matching user/pass
+		{Username: "mochi-co", Password: "melon", Allow: false}, // allow matching user/pass (should never trigger due to Users map)
+	},
+	ACL: ACLRules{
+		{
+			Username: "mochi", // allow matching user/pass
+			Filters: Filters{
+				"a/b/c":     Deny,
+				"d/+/f":     Deny,
+				"mochi/#":   ReadWrite,
+				"updates/#": WriteOnly,
+				"readonly":  ReadOnly,
+				"ignored":   Deny,
+			},
+		},
+		{Remote: "localhost", Filters: Filters{"$SYS/#": ReadOnly}}, // allow $SYS access to localhost
+		{Username: "admin", Filters: Filters{"$SYS/#": ReadOnly}},   // allow $SYS access to admin
+		{Remote: "001.002.003.004"},                                 // Allow all with no filter
+		{Filters: Filters{"$SYS/#": Deny}},                          // Deny $SYS access to all others
+	},
+}
 
 func TestRStringMatches(t *testing.T) {
 	require.True(t, RString("*").Matches("any"))

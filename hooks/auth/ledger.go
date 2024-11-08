@@ -11,8 +11,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/packets"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 const (
@@ -90,7 +90,6 @@ func (r RString) FilterMatches(a string) bool {
 func MatchTopic(filter string, topic string) (elements []string, matched bool) {
 	filterParts := strings.Split(filter, "/")
 	topicParts := strings.Split(topic, "/")
-
 	elements = make([]string, 0)
 	for i := 0; i < len(filterParts); i++ {
 		if i >= len(topicParts) {
@@ -166,8 +165,38 @@ func (l *Ledger) ACLOk(cl *mqtt.Client, topic string, write bool) (n int, ok boo
 	// If the users map is set, always check for a predefined user first instead
 	// of iterating through global rules.
 	if l.Users != nil {
-		if u, ok := l.Users[string(cl.Properties.Username)]; ok && len(u.ACL) > 0 {
+		if u, ok := l.Users[string(cl.Properties.Username)]; ok {
+			if len(u.ACL) == 0 { // no need to check acl
+				return n, true
+			}
+			// check the acls
 			for filter, access := range u.ACL {
+				if !write && topic == "#" {
+					return n, true
+				}
+				if filter.FilterMatches(topic) {
+					if !write && (access == ReadOnly || access == ReadWrite) {
+						return n, true
+					} else if write && (access == WriteOnly || access == ReadWrite) {
+						return n, true
+					} else {
+						return n, false
+					}
+				}
+			}
+		}
+	}
+	for n, rule := range l.ACL {
+		if rule.Client.Matches(cl.ID) &&
+			rule.Username.Matches(string(cl.Properties.Username)) &&
+			rule.Remote.Matches(cl.Net.Remote) {
+			if len(rule.Filters) == 0 {
+				return n, true
+			}
+			for filter, access := range rule.Filters {
+				if !write && topic == "#" {
+					return n, true
+				}
 				if filter.FilterMatches(topic) {
 					if !write && (access == ReadOnly || access == ReadWrite) {
 						return n, true
@@ -181,42 +210,17 @@ func (l *Ledger) ACLOk(cl *mqtt.Client, topic string, write bool) (n int, ok boo
 		}
 	}
 
-	for n, rule := range l.ACL {
-		if rule.Client.Matches(cl.ID) &&
-			rule.Username.Matches(string(cl.Properties.Username)) &&
-			rule.Remote.Matches(cl.Net.Remote) {
-			if len(rule.Filters) == 0 {
+	// if Auth is set, it can do anything if the user is allowed.
+	if l.Auth != nil {
+		for n, rule := range l.Auth {
+			if rule.Client.Matches(cl.ID) &&
+				rule.Username.Matches(string(cl.Properties.Username)) &&
+				rule.Remote.Matches(cl.Net.Remote) &&
+				rule.Allow {
 				return n, true
-			}
-
-			if write {
-				for filter, access := range rule.Filters {
-					if access == WriteOnly || access == ReadWrite {
-						if filter.FilterMatches(topic) {
-							return n, true
-						}
-					}
-				}
-			}
-
-			if !write {
-				for filter, access := range rule.Filters {
-					if access == ReadOnly || access == ReadWrite {
-						if filter.FilterMatches(topic) {
-							return n, true
-						}
-					}
-				}
-			}
-
-			for filter := range rule.Filters {
-				if filter.FilterMatches(topic) {
-					return n, false
-				}
 			}
 		}
 	}
-
 	return 0, false
 }
 

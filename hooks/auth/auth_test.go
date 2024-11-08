@@ -9,9 +9,9 @@ import (
 	"os"
 	"testing"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/packets"
 	"github.com/stretchr/testify/require"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 var logger = slog.New(slog.NewTextHandler(os.Stdout, nil))

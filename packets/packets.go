@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mochi-mqtt/server/v2/mempool"
+	"github.com/xyzj/mqtt-server/mempool"
 )
 
 // All valid packet types and their packet identifiers.

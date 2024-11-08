@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mochi-mqtt/server/v2/packets"
-	"github.com/mochi-mqtt/server/v2/system"
 	"github.com/stretchr/testify/require"
+	"github.com/xyzj/mqtt-server/packets"
+	"github.com/xyzj/mqtt-server/system"
 )
 
 var (
@@ -224,5 +224,4 @@ func TestMessageToPacket(t *testing.T) {
 		PacketID: 100,
 		Created:  d.Created,
 	}, pk)
-
 }

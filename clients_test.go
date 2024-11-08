@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mochi-mqtt/server/v2/packets"
-	"github.com/mochi-mqtt/server/v2/system"
+	"github.com/xyzj/mqtt-server/packets"
+	"github.com/xyzj/mqtt-server/system"
 
 	"github.com/stretchr/testify/require"
 )
@@ -902,29 +902,27 @@ func TestClientWritePacketInvalidPacket(t *testing.T) {
 	require.Error(t, err)
 }
 
-var (
-	pkTable = []packets.TPacketCase{
-		packets.TPacketData[packets.Connect].Get(packets.TConnectMqtt311),
-		packets.TPacketData[packets.Connack].Get(packets.TConnackAcceptedMqtt5),
-		packets.TPacketData[packets.Connack].Get(packets.TConnackAcceptedNoSession),
-		packets.TPacketData[packets.Publish].Get(packets.TPublishBasic),
-		packets.TPacketData[packets.Publish].Get(packets.TPublishMqtt5),
-		packets.TPacketData[packets.Puback].Get(packets.TPuback),
-		packets.TPacketData[packets.Pubrec].Get(packets.TPubrec),
-		packets.TPacketData[packets.Pubrel].Get(packets.TPubrel),
-		packets.TPacketData[packets.Pubcomp].Get(packets.TPubcomp),
-		packets.TPacketData[packets.Subscribe].Get(packets.TSubscribe),
-		packets.TPacketData[packets.Subscribe].Get(packets.TSubscribeMqtt5),
-		packets.TPacketData[packets.Suback].Get(packets.TSuback),
-		packets.TPacketData[packets.Suback].Get(packets.TSubackMqtt5),
-		packets.TPacketData[packets.Unsubscribe].Get(packets.TUnsubscribe),
-		packets.TPacketData[packets.Unsubscribe].Get(packets.TUnsubscribeMqtt5),
-		packets.TPacketData[packets.Unsuback].Get(packets.TUnsuback),
-		packets.TPacketData[packets.Unsuback].Get(packets.TUnsubackMqtt5),
-		packets.TPacketData[packets.Pingreq].Get(packets.TPingreq),
-		packets.TPacketData[packets.Pingresp].Get(packets.TPingresp),
-		packets.TPacketData[packets.Disconnect].Get(packets.TDisconnect),
-		packets.TPacketData[packets.Disconnect].Get(packets.TDisconnectMqtt5),
-		packets.TPacketData[packets.Auth].Get(packets.TAuth),
-	}
-)
+var pkTable = []packets.TPacketCase{
+	packets.TPacketData[packets.Connect].Get(packets.TConnectMqtt311),
+	packets.TPacketData[packets.Connack].Get(packets.TConnackAcceptedMqtt5),
+	packets.TPacketData[packets.Connack].Get(packets.TConnackAcceptedNoSession),
+	packets.TPacketData[packets.Publish].Get(packets.TPublishBasic),
+	packets.TPacketData[packets.Publish].Get(packets.TPublishMqtt5),
+	packets.TPacketData[packets.Puback].Get(packets.TPuback),
+	packets.TPacketData[packets.Pubrec].Get(packets.TPubrec),
+	packets.TPacketData[packets.Pubrel].Get(packets.TPubrel),
+	packets.TPacketData[packets.Pubcomp].Get(packets.TPubcomp),
+	packets.TPacketData[packets.Subscribe].Get(packets.TSubscribe),
+	packets.TPacketData[packets.Subscribe].Get(packets.TSubscribeMqtt5),
+	packets.TPacketData[packets.Suback].Get(packets.TSuback),
+	packets.TPacketData[packets.Suback].Get(packets.TSubackMqtt5),
+	packets.TPacketData[packets.Unsubscribe].Get(packets.TUnsubscribe),
+	packets.TPacketData[packets.Unsubscribe].Get(packets.TUnsubscribeMqtt5),
+	packets.TPacketData[packets.Unsuback].Get(packets.TUnsuback),
+	packets.TPacketData[packets.Unsuback].Get(packets.TUnsubackMqtt5),
+	packets.TPacketData[packets.Pingreq].Get(packets.TPingreq),
+	packets.TPacketData[packets.Pingresp].Get(packets.TPingresp),
+	packets.TPacketData[packets.Disconnect].Get(packets.TDisconnect),
+	packets.TPacketData[packets.Disconnect].Get(packets.TDisconnectMqtt5),
+	packets.TPacketData[packets.Auth].Get(packets.TAuth),
+}

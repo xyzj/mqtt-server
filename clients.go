@@ -18,7 +18,7 @@ import (
 
 	"github.com/rs/xid"
 
-	"github.com/mochi-mqtt/server/v2/packets"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 const (
@@ -27,9 +27,7 @@ const (
 	minimumKeepalive             uint16 = 5  // the minimum recommended keepalive - values under with display a warning.
 )
 
-var (
-	ErrMinimumKeepalive = errors.New("client keepalive is below minimum recommended value and may exhibit connection instability")
-)
+var ErrMinimumKeepalive = errors.New("client keepalive is below minimum recommended value and may exhibit connection instability")
 
 // ReadFn is the function signature for the function used for reading and processing new packets.
 type ReadFn func(*Client, packets.Packet) error
@@ -392,7 +390,6 @@ func (cl *Client) Read(packetHandler ReadFn) error {
 // Stop instructs the client to shut down all processing goroutines and disconnect.
 func (cl *Client) Stop(err error) {
 	cl.State.endOnce.Do(func() {
-
 		if cl.Net.Conn != nil {
 			_ = cl.Net.Conn.Close() // omit close error
 		}

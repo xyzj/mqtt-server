@@ -11,9 +11,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/listeners"
-	"github.com/mochi-mqtt/server/v2/packets"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/listeners"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 func main() {

@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/mochi-mqtt/server/v2/packets"
-	"github.com/mochi-mqtt/server/v2/system"
+	"github.com/xyzj/mqtt-server/packets"
+	"github.com/xyzj/mqtt-server/system"
 )
 
 const (
@@ -20,10 +20,8 @@ const (
 	ClientKey       = "CL"  // unique key to denote clients in a store
 )
 
-var (
-	// ErrDBFileNotOpen indicates that the file database (e.g. bolt/badger) wasn't open for reading.
-	ErrDBFileNotOpen = errors.New("db file not open")
-)
+// ErrDBFileNotOpen indicates that the file database (e.g. bolt/badger) wasn't open for reading.
+var ErrDBFileNotOpen = errors.New("db file not open")
 
 // Serializable is an interface for objects that can be serialized and deserialized.
 type Serializable interface {

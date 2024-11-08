@@ -11,9 +11,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/hooks/auth"
-	"github.com/mochi-mqtt/server/v2/listeners"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/hooks/auth"
+	"github.com/xyzj/mqtt-server/listeners"
 )
 
 var (

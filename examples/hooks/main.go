@@ -13,10 +13,10 @@ import (
 	"syscall"
 	"time"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/hooks/auth"
-	"github.com/mochi-mqtt/server/v2/listeners"
-	"github.com/mochi-mqtt/server/v2/packets"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/hooks/auth"
+	"github.com/xyzj/mqtt-server/listeners"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 func main() {
@@ -46,7 +46,6 @@ func main() {
 	err = server.AddHook(new(ExampleHook), &ExampleHookOptions{
 		Server: server,
 	})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -161,7 +160,6 @@ func (h *ExampleHook) OnDisconnect(cl *mqtt.Client, err error, expire bool) {
 	} else {
 		h.Log.Info("client disconnected", "client", cl.ID, "expire", expire)
 	}
-
 }
 
 func (h *ExampleHook) OnSubscribed(cl *mqtt.Client, pk packets.Packet, reasonCodes []byte) {

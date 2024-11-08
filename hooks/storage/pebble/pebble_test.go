@@ -12,11 +12,11 @@ import (
 	"time"
 
 	pebbledb "github.com/cockroachdb/pebble"
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/hooks/storage"
-	"github.com/mochi-mqtt/server/v2/packets"
-	"github.com/mochi-mqtt/server/v2/system"
 	"github.com/stretchr/testify/require"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/hooks/storage"
+	"github.com/xyzj/mqtt-server/packets"
+	"github.com/xyzj/mqtt-server/system"
 )
 
 var (
@@ -171,7 +171,6 @@ func TestOnSessionEstablishedThenOnDisconnect(t *testing.T) {
 	require.Error(t, err)
 	require.ErrorIs(t, pebbledb.ErrNotFound, err)
 	require.Empty(t, r3.ID)
-
 }
 
 func TestOnClientExpired(t *testing.T) {

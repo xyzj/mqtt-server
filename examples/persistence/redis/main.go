@@ -11,10 +11,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/hooks/auth"
-	"github.com/mochi-mqtt/server/v2/hooks/storage/redis"
-	"github.com/mochi-mqtt/server/v2/listeners"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/hooks/auth"
+	"github.com/xyzj/mqtt-server/hooks/storage/redis"
+	"github.com/xyzj/mqtt-server/listeners"
 
 	rv8 "github.com/go-redis/redis/v8"
 )

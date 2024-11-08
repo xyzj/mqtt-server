@@ -9,7 +9,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/mochi-mqtt/server/v2/packets"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 var (
@@ -478,7 +478,7 @@ func (x *TopicsIndex) RetainMessage(pk packets.Packet) int64 {
 // set creates a topic address in the index and returns the final particle.
 func (x *TopicsIndex) set(topic string, d int) *particle {
 	var key string
-	var hasNext = true
+	hasNext := true
 	n := x.root
 	for hasNext {
 		key, hasNext = isolateParticle(topic, d)
@@ -498,7 +498,7 @@ func (x *TopicsIndex) set(topic string, d int) *particle {
 // seek finds the particle at a specific index in a topic filter.
 func (x *TopicsIndex) seek(filter string, d int) *particle {
 	var key string
-	var hasNext = true
+	hasNext := true
 	n := x.root
 	for hasNext {
 		key, hasNext = isolateParticle(filter, d)

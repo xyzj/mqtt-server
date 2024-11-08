@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mochi-mqtt/server/v2/hooks/auth"
+	"github.com/xyzj/mqtt-server/hooks/auth"
 
-	mqtt "github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/packets"
+	mqtt "github.com/xyzj/mqtt-server"
+	"github.com/xyzj/mqtt-server/packets"
 )
 
 func main() {
@@ -58,7 +58,7 @@ func main() {
 
 	// There is a shorthand convenience function, Publish, for easily sending  publish packets if you are not
 	// concerned with creating your own packets.  If you want to have more control over your packets, you can
-	//directly inject a packet of any kind into the broker. See examples/hooks/main.go for usage.
+	// directly inject a packet of any kind into the broker. See examples/hooks/main.go for usage.
 	go func() {
 		for range time.Tick(time.Second * 3) {
 			err := server.Publish("direct/publish", []byte("scheduled message"), false, 0)

@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mochi-mqtt/server/v2/system"
+	"github.com/xyzj/mqtt-server/system"
 )
 
 const TypeSysInfo = "sysinfo"
@@ -81,7 +81,6 @@ func (l *HTTPStats) Init(log *slog.Logger) error {
 
 // Serve starts listening for new connections and serving responses.
 func (l *HTTPStats) Serve(establish EstablishFn) {
-
 	var err error
 	if l.listen.TLSConfig != nil {
 		err = l.listen.ListenAndServeTLS("", "")

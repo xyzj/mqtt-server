@@ -1,11 +1,11 @@
 # Mochi-MQTT Server
 
 <p align="center">
-    
-![build status](https://github.com/mochi-mqtt/server/actions/workflows/build.yml/badge.svg) 
+
+![build status](https://github.com/mochi-mqtt/server/actions/workflows/build.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/mochi-mqtt/server/badge.svg?branch=master&v2)](https://coveralls.io/github/mochi-mqtt/server?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/mochi-mqtt/server)](https://goreportcard.com/report/github.com/mochi-mqtt/server/v2)
-[![Go Reference](https://pkg.go.dev/badge/github.com/mochi-mqtt/server.svg)](https://pkg.go.dev/github.com/mochi-mqtt/server/v2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mochi-mqtt/server)](https://goreportcard.com/report/github.com/xyzj/mqtt-server)
+[![Go Reference](https://pkg.go.dev/badge/github.com/mochi-mqtt/server.svg)](https://pkg.go.dev/github.com/xyzj/mqtt-server)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mochi-mqtt/server/issues)
 
 </p>
@@ -127,9 +127,9 @@ options:
 import (
   "log"
 
-  mqtt "github.com/mochi-mqtt/server/v2"
-  "github.com/mochi-mqtt/server/v2/hooks/auth"
-  "github.com/mochi-mqtt/server/v2/listeners"
+  mqtt "github.com/xyzj/mqtt-server"
+  "github.com/xyzj/mqtt-server/hooks/auth"
+  "github.com/xyzj/mqtt-server/listeners"
 )
 
 func main() {
@@ -144,17 +144,17 @@ func main() {
 
   // 创建新的 MQTT 服务器。
   server := mqtt.New(nil)
-  
+
   // 允许所有连接(权限)。
   _ = server.AddHook(new(auth.AllowHook), nil)
-  
+
   // 在标1883端口上创建一个 TCP 服务端。
   tcp := listeners.NewTCP(listeners.Config{ID: "t1", Address: ":1883"})
   err := server.AddListener(tcp)
   if err != nil {
     log.Fatal(err)
   }
-  
+
 
   go func() {
     err := server.Serve()
@@ -185,7 +185,7 @@ func main() {
 | listeners.NewHTTPStats       | 一个 HTTP $SYS 服务状态监听器                                                                 |
 | listeners.NewHTTPHealthCheck | 一个 HTTP 健康检测监听器，用于为例如云基础设施提供健康检查响应                                   |
 
-> 可以使用listeners.Listener接口开发新的监听器。如果有兴趣，你可以实现自己的Listener，如果你在此期间你有更好的建议或疑问，你可以[提交问题](https://github.com/mochi-mqtt/server/issues)给我们。 
+> 可以使用listeners.Listener接口开发新的监听器。如果有兴趣，你可以实现自己的Listener，如果你在此期间你有更好的建议或疑问，你可以[提交问题](https://github.com/mochi-mqtt/server/issues)给我们。
 
 可以在*listeners.Config 中配置TLS，传递给Listener使其支持TLS。
 我们提供了一些示例，可以在 [示例](examples) 文件夹或 [cmd/main.go](cmd/main.go) 中找到。
@@ -224,12 +224,12 @@ server := mqtt.New(&mqtt.Options{
 
 | 类型           | 导入包                                                                   | 描述                                                                       |
 |----------------|--------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| 访问控制 | [mochi-mqtt/server/hooks/auth . AllowHook](hooks/auth/allow_all.go)      | AllowHook	允许所有客户端连接访问并读写所有主题。      | 
-| 访问控制 | [mochi-mqtt/server/hooks/auth . Auth](hooks/auth/auth.go)                | 基于规则的访问权限控制。  | 
-| 数据持久性    | [mochi-mqtt/server/hooks/storage/bolt](hooks/storage/bolt/bolt.go)       | 使用 [BoltDB](https://dbdb.io/db/boltdb) 进行持久性存储（已弃用）。 | 
-| 数据持久性    | [mochi-mqtt/server/hooks/storage/badger](hooks/storage/badger/badger.go) | 使用 [BadgerDB](https://github.com/dgraph-io/badger) 进行持久性存储。   | 
-| 数据持久性    | [mochi-mqtt/server/hooks/storage/pebble](hooks/storage/pebble/pebble.go) | 使用 [PebbleDB](https://github.com/cockroachdb/pebble) 进行持久性存储。   | 
-| 数据持久性    | [mochi-mqtt/server/hooks/storage/redis](hooks/storage/redis/redis.go)    | 使用 [Redis](https://redis.io) 进行持久性存储。                         | 
+| 访问控制 | [mochi-mqtt/server/hooks/auth . AllowHook](hooks/auth/allow_all.go)      | AllowHook	允许所有客户端连接访问并读写所有主题。      |
+| 访问控制 | [mochi-mqtt/server/hooks/auth . Auth](hooks/auth/auth.go)                | 基于规则的访问权限控制。  |
+| 数据持久性    | [mochi-mqtt/server/hooks/storage/bolt](hooks/storage/bolt/bolt.go)       | 使用 [BoltDB](https://dbdb.io/db/boltdb) 进行持久性存储（已弃用）。 |
+| 数据持久性    | [mochi-mqtt/server/hooks/storage/badger](hooks/storage/badger/badger.go) | 使用 [BadgerDB](https://github.com/dgraph-io/badger) 进行持久性存储。   |
+| 数据持久性    | [mochi-mqtt/server/hooks/storage/pebble](hooks/storage/pebble/pebble.go) | 使用 [PebbleDB](https://github.com/cockroachdb/pebble) 进行持久性存储。   |
+| 数据持久性    | [mochi-mqtt/server/hooks/storage/redis](hooks/storage/redis/redis.go)    | 使用 [Redis](https://redis.io) 进行持久性存储。                         |
 | 调试跟踪      | [mochi-mqtt/server/hooks/debug](hooks/debug/debug.go)                    | 调试输出以查看数据包在服务端的链路追踪。   |
 
 许多内部函数都已开放给开发者，你可以参考上述示例创建自己的Hook钩子。如果你有更好的关于Hook钩子方面的建议或者疑问，你可以[提交问题](https://github.com/mochi-mqtt/server/issues)给我们。
@@ -253,16 +253,16 @@ _ = server.AddHook(new(auth.AllowHook), nil)
 
 身份规则(Auth rules)有四个可选参数和一个是否允许参数：
 
-| 参数 | 说明 | 
+| 参数 | 说明 |
 | -- | -- |
 | Client | 客户端的客户端 ID |
 | Username | 客户端的用户名 |
 | Password | 客户端的密码 |
 | Remote | 客户端的远程地址或 IP |
-| Allow | true（允许此用户）或 false（拒绝此用户） | 
+| Allow | true（允许此用户）或 false（拒绝此用户） |
 
 ACL权限规则(ACL rules)有三个可选参数和一个主题匹配参数：
-| 参数 | 说明 | 
+| 参数 | 说明 |
 | -- | -- |
 | Client | 客户端的客户端 ID |
 | Username | 客户端的用户名 |
@@ -371,45 +371,45 @@ if err != nil {
 
 > 最灵活的事件钩子是 OnPacketRead、OnPacketEncode 和 OnPacketSent - 这些钩子可以用来控制和修改所有传入和传出的数据包。
 
-| 钩子函数               | 说明                                                                                                                                                                                                                                                                                                      | 
+| 钩子函数               | 说明                                                                                                                                                                                                                                                                                                      |
 |------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | OnStarted              | 在服务器成功启动时调 |用。                                                                                                                                                                                                                                                          |
-| OnStopped              | 在服务器成功停止时调用。                                                                                                                                                                                                                                                           | 
+| OnStopped              | 在服务器成功停止时调用。                                                                                                                                                                                                                                                           |
 | OnConnectAuthenticate  | 当用户尝试与服务器进行身份验证时调用。必须实现此方法来允许或拒绝对服务器的访问（请参阅 hooks/auth/allow_all 或 basic）。它可以在自定义Hook钩子中使用，以检查连接的用户是否与现有用户数据库中的用户匹配。如果允许访问，则返回 true。 |
 | OnACLCheck             | 当用户尝试发布或订阅主题时调用，用来检测ACL规则。                                                                                                                                                                                                                          |
 | OnSysInfoTick          | 当 $SYS 主题相关的消息被发布时调用。                                                                                                                                                                                                                                                      |
-| OnConnect              |  当新客户端连接时调用，可能返回一个错误或错误码以中断客户端的连接。                                                                                                                                                                                        | 
+| OnConnect              |  当新客户端连接时调用，可能返回一个错误或错误码以中断客户端的连接。                                                                                                                                                                                        |
 | OnSessionEstablish     | 在新客户端连接并进行身份验证后，会立即调用此方法，并在会话建立和发送CONNACK之前立即调用。                                                                                                                                                                 |
-| OnSessionEstablished   | 在新客户端成功建立会话（在OnConnect之后）时调用。                                                                                                                                                                                                                            | 
-| OnDisconnect           | 当客户端因任何原因断开连接时调用。                                                                                                                                                                                                                                                      | 
-| OnAuthPacket           | 当接收到认证数据包时调用。它旨在允许开发人员创建自己的 MQTT v5 认证数据包处理机制。在这里允许数据包的修改。                                                                                                                                       | 
-| OnPacketRead           | 当从客户端接收到数据包时调用。允许对数据包进行修改。                                                                                                                                                                                                                               | 
-| OnPacketEncode         | 在数据包被编码并发送给客户端之前立即调用。允许修改数据包。                                                                                                                                                                                                          | 
-| OnPacketSent           | 在数据包已发送给客户端后调用。                                                                                                                                                                                                                                                 | 
-| OnPacketProcessed      | 在数据包已接收并成功由服务端处理后调用。                                                                                                                                                                                                                             | 
-| OnSubscribe            | 当客户端订阅一个或多个主题时调用。允许修改数据包。                                                                                                                                                                                                                       | 
-| OnSubscribed           | 当客户端成功订阅一个或多个主题时调用。                                                                                                                                                                                                                                       | 
-| OnSelectSubscribers    |  当订阅者已被关联到一个主题中，在选择共享订阅的订阅者之前调用。允许接收者修改。                                                                                                                                                  | 
-| OnUnsubscribe          | 当客户端取消订阅一个或多个主题时调用。允许包修改。                                                                                                                                                                                                                   | 
-| OnUnsubscribed         | 当客户端成功取消订阅一个或多个主题时调用。                                                                                                                                                                                                                                   | 
-| OnPublish              | 当客户端发布消息时调用。允许修改数据包。                                                                                                                                                                                                                                     | 
-| OnPublished            | 当客户端向订阅者发布消息后调用。|                                        
-| OnPublishDropped       |  消息传递给客户端之前消息已被丢弃，将调用此方法。 例如当客户端响应时间过长需要丢弃消息时。   | 
-| OnRetainMessage        | 当消息被保留时调用。                                                                                                                                                                                                                                                              | 
-| OnRetainPublished      | 当保留的消息被发布给客户端时调用。                                                                                                                                                                                                                                                  | 
-| OnQosPublish           | 当发出QoS >= 1 的消息给订阅者后调用。                                                                                                                                                                                                                               | 
-| OnQosComplete          | 在消息的QoS流程走完之后调用。                                                                                                                                                                                                                                                 | 
-| OnQosDropped           | 在消息的QoS流程未完成，同时消息到期时调用。                                                                                                                                                                                                                                                 | 
-| OnPacketIDExhausted    | 当packet ids已经用完后，没有可用的id可再分配时调用。                                                                                                                                                                                                                                        | 
-| OnWill                 | 当客户端断开连接并打算发布遗嘱消息时调用。允许修改数据包。                                                                                                                                                                                                          | 
-| OnWillSent             | 遗嘱消息发送完成后被调用。                                                                                                                                                                                                                             | 
-| OnClientExpired        | 在客户端会话已过期并应删除时调用。                                                                                                                                                                                                                                            | 
-| OnRetainedExpired      | 在保留的消息已过期并应删除时调用。|                                                                                                                                                                                                                                         | 
-| StoredClients          | 这个接口需要返回客户端列表，例如从持久化数据库中获取客户端列表。                                                                                                                                                                                          | 
-| StoredSubscriptions    | 返回客户端的所有订阅，例如从持久化数据库中获取客户端的订阅列表。                            | 
-| StoredInflightMessages | 返回待发送消息（inflight messages），例如从持久化数据库中获取到还有哪些消息未完成传输。                                                                                                                                                                                                                                               | 
-| StoredRetainedMessages | 返回保留的消息，例如从持久化数据库获取保留的消息。                                                                                                                                                                                                                                                   | 
-| StoredSysInfo          | 返回存储的系统状态信息，例如从持久化数据库获取的系统状态信息。     | 
+| OnSessionEstablished   | 在新客户端成功建立会话（在OnConnect之后）时调用。                                                                                                                                                                                                                            |
+| OnDisconnect           | 当客户端因任何原因断开连接时调用。                                                                                                                                                                                                                                                      |
+| OnAuthPacket           | 当接收到认证数据包时调用。它旨在允许开发人员创建自己的 MQTT v5 认证数据包处理机制。在这里允许数据包的修改。                                                                                                                                       |
+| OnPacketRead           | 当从客户端接收到数据包时调用。允许对数据包进行修改。                                                                                                                                                                                                                               |
+| OnPacketEncode         | 在数据包被编码并发送给客户端之前立即调用。允许修改数据包。                                                                                                                                                                                                          |
+| OnPacketSent           | 在数据包已发送给客户端后调用。                                                                                                                                                                                                                                                 |
+| OnPacketProcessed      | 在数据包已接收并成功由服务端处理后调用。                                                                                                                                                                                                                             |
+| OnSubscribe            | 当客户端订阅一个或多个主题时调用。允许修改数据包。                                                                                                                                                                                                                       |
+| OnSubscribed           | 当客户端成功订阅一个或多个主题时调用。                                                                                                                                                                                                                                       |
+| OnSelectSubscribers    |  当订阅者已被关联到一个主题中，在选择共享订阅的订阅者之前调用。允许接收者修改。                                                                                                                                                  |
+| OnUnsubscribe          | 当客户端取消订阅一个或多个主题时调用。允许包修改。                                                                                                                                                                                                                   |
+| OnUnsubscribed         | 当客户端成功取消订阅一个或多个主题时调用。                                                                                                                                                                                                                                   |
+| OnPublish              | 当客户端发布消息时调用。允许修改数据包。                                                                                                                                                                                                                                     |
+| OnPublished            | 当客户端向订阅者发布消息后调用。|
+| OnPublishDropped       |  消息传递给客户端之前消息已被丢弃，将调用此方法。 例如当客户端响应时间过长需要丢弃消息时。   |
+| OnRetainMessage        | 当消息被保留时调用。                                                                                                                                                                                                                                                              |
+| OnRetainPublished      | 当保留的消息被发布给客户端时调用。                                                                                                                                                                                                                                                  |
+| OnQosPublish           | 当发出QoS >= 1 的消息给订阅者后调用。                                                                                                                                                                                                                               |
+| OnQosComplete          | 在消息的QoS流程走完之后调用。                                                                                                                                                                                                                                                 |
+| OnQosDropped           | 在消息的QoS流程未完成，同时消息到期时调用。                                                                                                                                                                                                                                                 |
+| OnPacketIDExhausted    | 当packet ids已经用完后，没有可用的id可再分配时调用。                                                                                                                                                                                                                                        |
+| OnWill                 | 当客户端断开连接并打算发布遗嘱消息时调用。允许修改数据包。                                                                                                                                                                                                          |
+| OnWillSent             | 遗嘱消息发送完成后被调用。                                                                                                                                                                                                                             |
+| OnClientExpired        | 在客户端会话已过期并应删除时调用。                                                                                                                                                                                                                                            |
+| OnRetainedExpired      | 在保留的消息已过期并应删除时调用。|                                                                                                                                                                                                                                         |
+| StoredClients          | 这个接口需要返回客户端列表，例如从持久化数据库中获取客户端列表。                                                                                                                                                                                          |
+| StoredSubscriptions    | 返回客户端的所有订阅，例如从持久化数据库中获取客户端的订阅列表。                            |
+| StoredInflightMessages | 返回待发送消息（inflight messages），例如从持久化数据库中获取到还有哪些消息未完成传输。                                                                                                                                                                                                                                               |
+| StoredRetainedMessages | 返回保留的消息，例如从持久化数据库获取保留的消息。                                                                                                                                                                                                                                                   |
+| StoredSysInfo          | 返回存储的系统状态信息，例如从持久化数据库获取的系统状态信息。     |
 
 如果你想自己实现一个持久化存储的Hook钩子，请参考现有的持久存储Hook钩子以获取灵感和借鉴。如果您正在构建一个身份验证Hook钩子，您将需要实现OnACLCheck 和 OnConnectAuthenticate这两个函数接口。
 
@@ -500,7 +500,7 @@ Mochi MQTT 的性能与其他的一些主流的mqtt中间件（如 Mosquitto、E
 > 基准测试中呈现的数值不代表真实每秒消息吞吐量。它们依赖于 mqtt-stresser 的一种不寻常的计算方法，但它们在所有代理之间是一致的。性能基准测试的结果仅供参考。这些比较都是使用默认配置进行的。
 
 `mqtt-stresser -broker tcp://localhost:1883 -num-clients=2 -num-messages=10000`
-| Broker            | publish fastest | median | slowest | receive fastest | median | slowest | 
+| Broker            | publish fastest | median | slowest | receive fastest | median | slowest |
 | --                | --             | --   | --   | --             | --   | --   |
 | Mochi v2.2.10      | 124,772 | 125,456 | 124,614 | 314,461 | 313,186 | 311,910 |
 | [Mosquitto v2.0.15](https://github.com/eclipse/mosquitto) | 155,920 | 155,919 | 155,918 | 185,485 | 185,097 | 184,709 |
@@ -508,7 +508,7 @@ Mochi MQTT 的性能与其他的一些主流的mqtt中间件（如 Mosquitto、E
 | [Rumqtt v0.21.0](https://github.com/bytebeamio/rumqtt) | 112,208 | 108,480 | 104,753 | 135,784 | 126,446 | 117,108 |
 
 `mqtt-stresser -broker tcp://localhost:1883 -num-clients=10 -num-messages=10000`
-| Broker            | publish fastest | median | slowest | receive fastest | median | slowest | 
+| Broker            | publish fastest | median | slowest | receive fastest | median | slowest |
 | --                | --             | --   | --   | --             | --   | --   |
 | Mochi v2.2.10      | 41,825 | 31,663| 23,008 | 144,058 | 65,903 | 37,618 |
 | Mosquitto v2.0.15 | 42,729 | 38,633 | 29,879 | 23,241 | 19,714 | 18,806 |
@@ -518,7 +518,7 @@ Mochi MQTT 的性能与其他的一些主流的mqtt中间件（如 Mosquitto、E
 百万消息挑战（立即向服务器发送100万条消息）:
 
 `mqtt-stresser -broker tcp://localhost:1883 -num-clients=100 -num-messages=10000`
-| Broker            | publish fastest | median | slowest | receive fastest | median | slowest | 
+| Broker            | publish fastest | median | slowest | receive fastest | median | slowest |
 | --                | --             | --   | --   | --             | --   | --   |
 | Mochi v2.2.10     | 13,532 | 4,425 | 2,344 | 52,120 | 7,274 | 2,701 |
 | Mosquitto v2.0.15 | 3,826 | 3,395 | 3,032 | 1,200 | 1,150 | 1,118 |
