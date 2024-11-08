@@ -167,7 +167,7 @@ func main() {
 	ac := &auth.Ledger{}
 	if *authfile != "" {
 		var err error
-		ac, err = server.FromAuthfile(*authfile)
+		ac, err = server.FromAuthfile(*authfile, false)
 		if err != nil {
 			println(err.Error())
 			p.Exit(1)

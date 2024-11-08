@@ -2,8 +2,6 @@ module github.com/xyzj/mqtt-server
 
 go 1.21.0
 
-toolchain go1.23.2
-
 require (
 	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/cockroachdb/pebble v1.1.1

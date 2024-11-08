@@ -1,4 +1,4 @@
-BINARY_NAME=gomqttd
+BINARY_NAME=go-mqttd
 MAIN_VER=2.6.6
 
 DIST_WINDOWS=_dist/${BINARY_NAME}.exe

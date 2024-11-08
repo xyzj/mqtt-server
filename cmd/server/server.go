@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log/slog"
-	"os"
 	"strconv"
 	"sync/atomic"
 
@@ -12,49 +11,7 @@ import (
 	"github.com/xyzj/mqtt-server/hooks/auth"
 	"github.com/xyzj/mqtt-server/listeners"
 	"github.com/xyzj/toolbox/crypto"
-	"gopkg.in/yaml.v3"
 )
-
-var authSample = []byte(`thisisanACLsample:
-    password: lostjudgment
-    acl:
-        deny/#: 0
-        read/#: 1
-        write/#: 2
-        rw/#: 3
-    disallow: true
-control:
-    password: daysgone
-    acl:
-        down/#: 3
-        up/#: 3
-user01:
-    password: mUOSAboNqr
-    acl:
-        down/+/user01/#: 1
-        up/+/user01/#: 2
-`)
-
-func FromAuthfile(authfile string) (*auth.Ledger, error) {
-	ac := auth.Users{}
-	if authfile == "" {
-		return nil, fmt.Errorf("filename is empty")
-	}
-	b, err := os.ReadFile(authfile)
-	if err != nil {
-		return nil, err
-	}
-
-	err = yaml.Unmarshal(b, &ac)
-	if err != nil {
-		return nil, err
-	}
-	return &auth.Ledger{Users: ac, Auth: auth.AuthRules{}, ACL: auth.ACLRules{}}, nil
-}
-
-func InitAuthfile(filename string) error {
-	return os.WriteFile(filename, authSample, 0o664)
-}
 
 // Opt server option
 type Opt struct {
