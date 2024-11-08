@@ -174,25 +174,12 @@ func main() {
 			return
 		}
 	}
-	// if _, ok := ac.Users["arx7"]; !ok {
-	// 	ac.Users["arx7"] = auth.UserRule{
-	// 		Username: "arx7",
-	// 		Password: "arbalest",
-	// 		ACL: auth.Filters{
-	// 			"#": auth.ReadWrite,
-	// 		},
-	// 	}
-	// }
 	if _, ok := ac.Users["YoRHa"]; !ok {
 		ac.Users["YoRHa"] = auth.UserRule{
 			Username: "YoRHa",
 			Password: "no2typeB",
-			ACL: auth.Filters{
-				"#": auth.ReadWrite,
-			},
 		}
 	}
-	ac.Auth = append(ac.Auth, auth.AuthRule{Username: "arx7", Password: "arbalest", Allow: true})
 	hopt := &slog.HandlerOptions{
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == "time" {
