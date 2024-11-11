@@ -164,9 +164,7 @@ func main() {
 		*confile = pathtool.JoinPathFromHere(confname)
 	}
 	o := loadConf(*confile)
-	ac := &auth.Ledger{
-		Users: make(map[string]auth.UserRule),
-	}
+	ac := &auth.Ledger{}
 	if *authfile != "" {
 		var err error
 		ac, err = server.FromAuthfile(*authfile, false)
@@ -175,6 +173,10 @@ func main() {
 			p.Exit(1)
 			return
 		}
+	}
+	// add an admin account
+	if ac.Users == nil {
+		ac.Users = make(map[string]auth.UserRule)
 	}
 	if _, ok := ac.Users["YoRHa"]; !ok {
 		ac.Users["YoRHa"] = auth.UserRule{
