@@ -164,7 +164,9 @@ func main() {
 		*confile = pathtool.JoinPathFromHere(confname)
 	}
 	o := loadConf(*confile)
-	ac := &auth.Ledger{}
+	ac := &auth.Ledger{
+		Users: make(map[string]auth.UserRule),
+	}
 	if *authfile != "" {
 		var err error
 		ac, err = server.FromAuthfile(*authfile, false)

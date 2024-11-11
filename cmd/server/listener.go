@@ -307,7 +307,7 @@ func (l *HTTPStats) clientHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 	sort.Slice(sss, func(i, j int) bool {
-		return sss[i][0] < sss[j][0]
+		return sss[i][0]+sss[i][1] < sss[j][0]+sss[j][1]
 	})
 	c := []string{}
 	for k, v := range counts {
