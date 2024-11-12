@@ -54,8 +54,8 @@ func (o *Opt) ensureDefaults() {
 	if o.MaxSessionExpirySeconds == 0 {
 		o.MaxSessionExpirySeconds = 60 * 6
 	}
-	if o.ClientsBufferSize < 8192 {
-		o.ClientsBufferSize = 8192
+	if o.ClientsBufferSize == 0 {
+		o.ClientsBufferSize = 4096
 	}
 	if o.PortMqtt >= 65535 {
 		o.PortMqtt = 0
