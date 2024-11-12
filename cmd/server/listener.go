@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
@@ -81,10 +80,10 @@ var t1 = `<html lang="zh-cn">
             margin: 0;
             padding: 0;
         }
-        table tr td:nth-of-type(3) {
+        table tr td:nth-of-type(2) {
             text-align: left;
         }
-        table tr td:nth-of-type(8) {
+        table tr td:nth-of-type(7) {
             text-align: left;
             width: 700px;
             white-space: pre-wrap;
@@ -130,7 +129,6 @@ var t3 = `{{define "body"}}
     <table>
         <thead>
             <tr>
-                <th>No.</th>
                 <th>Client User</th>
                 <th>Client ID</th>
                 <th>Client IP</th>
@@ -289,7 +287,6 @@ func (l *HTTPStats) clientHandler(w http.ResponseWriter, req *http.Request) {
 	info := l.clientsInfo.GetAll()
 	sss := make([][]string, 0, len(info))
 	counts := make(map[string]int)
-	no := 0
 	for _, v := range info {
 		if v.Net.Listener == "local" || v.ID == "inline" {
 			continue
@@ -301,8 +298,7 @@ func (l *HTTPStats) clientHandler(w http.ResponseWriter, req *http.Request) {
 		sort.Slice(ss, func(i, j int) bool {
 			return ss[i] < ss[j]
 		})
-		no++
-		sss = append(sss, []string{fmt.Sprintf("%05d", no), json.String(v.Properties.Username), v.ID, v.Net.Remote, strconv.Itoa(int(v.Properties.ProtocolVersion)), v.Net.Listener, strconv.Itoa(v.State.Subscriptions.Len()), strings.Join(ss, "\n")}) //
+		sss = append(sss, []string{json.String(v.Properties.Username), v.ID, v.Net.Remote, strconv.Itoa(int(v.Properties.ProtocolVersion)), v.Net.Listener, strconv.Itoa(v.State.Subscriptions.Len()), strings.Join(ss, "\n")}) //
 
 		if vv, ok := counts[v.Net.Listener]; ok {
 			counts[v.Net.Listener] = vv + 1
