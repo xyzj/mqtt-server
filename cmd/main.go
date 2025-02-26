@@ -215,7 +215,7 @@ func main() {
 				logger.NewWriter(&logger.OptLog{
 					Filename:     filepath.Base(*logfile),
 					FileDir:      filepath.Dir(*logfile),
-					MaxDays:      30,
+					FileDays:     30,
 					CompressFile: true,
 					DelayWrite:   true,
 				}),
