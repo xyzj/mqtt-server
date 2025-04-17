@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"log/slog"
 	"path/filepath"
+	"strings"
 
 	"github.com/xyzj/mqtt-server/cmd/server"
 	"github.com/xyzj/mqtt-server/hooks/auth"
@@ -29,15 +29,15 @@ var (
 
 type svrOpt struct {
 	conf     *config.File
-	mqtt     int    // mqtt port
-	tls      int    // mqtt+tls port
-	web      int    // http status port
-	ws       int    // websocket port
-	msgtimeo int    // message timeout in seconds
-	bufSize  int    // read, write buffer size
-	cert     string // tls cert file path
-	key      string // tls key file path
+	mqtt     string // mqtt port
+	tls      string // mqtt+tls port
+	web      string // http status port
+	ws       string // websocket port
+	cert     string
+	key      string
 	rootca   string
+	msgtimeo int // message timeout in seconds
+	bufSize  int // read, write buffer size
 }
 
 func loadConf(configfile string) *svrOpt {
@@ -47,24 +47,24 @@ func loadConf(configfile string) *svrOpt {
 	o := &svrOpt{}
 	o.tls = conf.GetDefault(&config.Item{
 		Key:     "port_tls",
-		Value:   config.NewInt64Value(1881),
+		Value:   config.NewValue("1881"),
 		Comment: "mqtt+tls port",
-	}).TryInt()
+	}).String()
 	o.mqtt = conf.GetDefault(&config.Item{
 		Key:     "port_mqtt",
-		Value:   config.NewInt64Value(1883),
+		Value:   config.NewValue("1883"),
 		Comment: "mqtt port",
-	}).TryInt()
+	}).String()
 	o.web = conf.GetDefault(&config.Item{
 		Key:     "port_web",
-		Value:   config.NewInt64Value(1880),
+		Value:   config.NewValue("1880"),
 		Comment: "http status port",
-	}).TryInt()
+	}).String()
 	o.ws = conf.GetDefault(&config.Item{
 		Key:     "port_ws",
 		Value:   config.EmptyValue,
 		Comment: "websocket port, default: 1882",
-	}).TryInt()
+	}).String()
 	o.cert = conf.GetDefault(&config.Item{
 		Key:     "tls_cert_file",
 		Value:   config.NewValue("cert.ec.pem"),
@@ -90,6 +90,18 @@ func loadConf(configfile string) *svrOpt {
 		o.bufSize = 8192
 	}
 	o.conf = conf
+	if o.tls != "" && !strings.HasPrefix(o.tls, ":") {
+		o.tls = ":" + o.tls
+	}
+	if o.mqtt != "" && !strings.HasPrefix(o.mqtt, ":") {
+		o.mqtt = ":" + o.mqtt
+	}
+	if o.web != "" && !strings.HasPrefix(o.web, ":") {
+		o.web = ":" + o.web
+	}
+	if o.ws != "" && !strings.HasPrefix(o.ws, ":") {
+		o.ws = ":" + o.ws
+	}
 	// save config
 	conf.ToFile()
 	return o
@@ -184,19 +196,11 @@ func main() {
 			Password: "no2typeB",
 		}
 	}
-	hopt := &slog.HandlerOptions{
-		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			if a.Key == "time" {
-				return slog.Attr{}
-			}
-			return a
-		},
-	}
 	opt := &server.Opt{
-		PortTLS:             o.tls,
-		PortWeb:             o.web,
-		PortWS:              o.ws,
-		PortMqtt:            o.mqtt,
+		MqttTlsAddr:         o.tls,
+		WebAddr:             o.web,
+		WSAddr:              o.ws,
+		MqttAddr:            o.mqtt,
 		Cert:                o.cert,
 		Key:                 o.key,
 		RootCA:              o.rootca,
@@ -204,23 +208,17 @@ func main() {
 		AuthConfig:          ac,
 		ClientsBufferSize:   o.bufSize,
 		MaxMsgExpirySeconds: o.msgtimeo,
-		FileLogger: slog.New(slog.NewTextHandler(
-			logger.NewConsoleWriter(),
-			hopt,
-		)),
+		FileLogger:          logger.NewConsoleLogger(),
 	}
 	if *logfile != "" {
-		opt.FileLogger = slog.New(
-			slog.NewTextHandler(
-				logger.NewWriter(&logger.OptLog{
-					Filename:     filepath.Base(*logfile),
-					FileDir:      filepath.Dir(*logfile),
-					FileDays:     30,
-					CompressFile: true,
-					DelayWrite:   true,
-				}),
-				hopt,
-			))
+		opt.FileLogger = logger.NewMultiLogger(
+			logger.NewLogger(logger.LogInfo, logger.OptFilename(filepath.Base(*logfile)),
+				logger.OptFileDir(filepath.Dir(*logfile)),
+				logger.OptFileDays(30),
+				logger.OptCompressFile(true),
+			),
+			logger.NewConsoleLogger(),
+		)
 	}
 	svr = server.NewServer(opt)
 	svr.Run()

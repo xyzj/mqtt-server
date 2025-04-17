@@ -4,13 +4,14 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log/slog"
-	"strconv"
 	"sync/atomic"
 
 	"github.com/xyzj/mqtt-server"
 	"github.com/xyzj/mqtt-server/hooks/auth"
 	"github.com/xyzj/mqtt-server/listeners"
+	"github.com/xyzj/toolbox"
 	"github.com/xyzj/toolbox/crypto"
+	"github.com/xyzj/toolbox/logger"
 )
 
 // Opt server option
@@ -20,7 +21,7 @@ type Opt struct {
 	// AuthConfig auth config，when set, ignore Authfile
 	AuthConfig *auth.Ledger
 	// 文件日志写入器
-	FileLogger *slog.Logger
+	FileLogger logger.Logger
 	// tls cert file path
 	Cert string
 	// tls key file path
@@ -28,13 +29,13 @@ type Opt struct {
 	// tls root ca file path
 	RootCA string
 	// mqtt port
-	PortMqtt int
+	MqttAddr string
 	// mqtt+tls port
-	PortTLS int
+	MqttTlsAddr string
 	// http status port
-	PortWeb int
+	WebAddr string
 	// websocket port
-	PortWS int
+	WSAddr string
 	// max message expiry time in seconds
 	MaxMsgExpirySeconds int
 	// max session expiry time in seconds
@@ -57,18 +58,6 @@ func (o *Opt) ensureDefaults() {
 	if o.ClientsBufferSize == 0 {
 		o.ClientsBufferSize = 4096
 	}
-	if o.PortMqtt >= 65535 {
-		o.PortMqtt = 0
-	}
-	if o.PortTLS >= 65535 {
-		o.PortTLS = 0
-	}
-	if o.PortWS >= 65535 {
-		o.PortWS = 0
-	}
-	if o.PortWeb >= 65535 {
-		o.PortWeb = 0
-	}
 	if o.AuthConfig == nil {
 		o.DisableAuth = true
 		o.AuthConfig = new(auth.Ledger)
@@ -85,6 +74,16 @@ type MqttServer struct {
 // NewServer make a new server
 func NewServer(opt *Opt) *MqttServer {
 	opt.ensureDefaults()
+
+	hopt := &slog.HandlerOptions{
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == "time" {
+				return slog.Attr{}
+			}
+			return a
+		},
+		Level: slog.LevelInfo,
+	}
 	// a new svr
 	cap := mqtt.NewDefaultServerCapabilities()
 	cap.MaximumMessageExpiryInterval = int64(opt.MaxMsgExpirySeconds)
@@ -94,7 +93,10 @@ func NewServer(opt *Opt) *MqttServer {
 		ClientNetWriteBufferSize: opt.ClientsBufferSize,
 		ClientNetReadBufferSize:  opt.ClientsBufferSize,
 		Capabilities:             cap,
-		Logger:                   opt.FileLogger,
+		Logger: slog.New(slog.NewTextHandler(
+			opt.FileLogger.DefaultWriter(),
+			hopt,
+		)),
 	}
 
 	svr := mqtt.New(mopt)
@@ -115,12 +117,14 @@ func (m *MqttServer) Stop() {
 }
 
 // Run start server and wait
-func (m *MqttServer) Run() {
-	if m.Start() == nil {
+func (m *MqttServer) Run() error {
+	err := m.Start()
+	if err == nil {
 		m.st.Store(true)
 		select {}
 	}
 	m.st.Store(false)
+	return err
 }
 
 // IsRunning check the server status
@@ -131,7 +135,7 @@ func (m *MqttServer) IsRunning() bool {
 // Start start server
 func (m *MqttServer) Start() error {
 	if m == nil || m.svr == nil {
-		return fmt.Errorf("use NewServer() to create a new mqtt server")
+		return fmt.Errorf("[mqtt-broker] use NewServer() to create a new mqtt server")
 	}
 	var err error
 	// set auth
@@ -143,7 +147,7 @@ func (m *MqttServer) Start() error {
 		})
 	}
 	if err != nil {
-		m.svr.Log.Error("config auth error: " + err.Error())
+		m.opt.FileLogger.Error("[mqtt-broker] config auth error: " + err.Error())
 		return err
 	}
 	// check tls files
@@ -153,48 +157,45 @@ func (m *MqttServer) Start() error {
 	} else {
 		tl, err = crypto.TLSConfigFromFile(m.opt.Cert, m.opt.Key, m.opt.RootCA)
 		if err != nil {
-			m.opt.PortTLS = 0
-			m.svr.Log.Warn(err.Error())
+			m.opt.MqttTlsAddr = ""
+			m.opt.FileLogger.Error("tls config error:" + err.Error())
 		}
 	}
 	// mqtt tls service
-	if m.opt.PortTLS > 0 {
+	if b, ok := toolbox.CheckTCPAddr(m.opt.MqttTlsAddr); ok {
 		err = m.svr.AddListener(listeners.NewTCP(listeners.Config{
 			ID:        "mqtt+tls",
-			Address:   ":" + strconv.Itoa(m.opt.PortTLS),
+			Address:   b.String(),
 			TLSConfig: tl,
 		}))
 		if err != nil {
-			m.svr.Log.Error("MQTT+TLS service error: " + err.Error())
-			return err
+			m.opt.FileLogger.Error("[mqtt-broker] start tls service error: " + err.Error())
 		}
 	}
 	// mqtt service
-	if m.opt.PortMqtt > 0 {
+	if b, ok := toolbox.CheckTCPAddr(m.opt.MqttAddr); ok {
 		err = m.svr.AddListener(listeners.NewTCP(listeners.Config{
 			ID:        "mqtt",
-			Address:   ":" + strconv.Itoa(m.opt.PortMqtt),
+			Address:   b.String(),
 			TLSConfig: nil,
 		}))
 		if err != nil {
-			m.svr.Log.Error("MQTT service error: " + err.Error())
-			return err
+			m.opt.FileLogger.Error("[mqtt-broker] start mqtt service error: " + err.Error())
 		}
 	}
 	// websocket service
-	if m.opt.PortWS > 0 {
+	if b, ok := toolbox.CheckTCPAddr(m.opt.WSAddr); ok {
 		err = m.svr.AddListener(listeners.NewWebsocket(listeners.Config{
 			ID:        "ws",
-			Address:   ":" + strconv.Itoa(m.opt.PortWS),
+			Address:   b.String(),
 			TLSConfig: tl,
 		}))
 		if err != nil {
-			m.svr.Log.Error("WS service error: " + err.Error())
-			return err
+			m.opt.FileLogger.Error("[mqtt-broker] start ws service error: " + err.Error())
 		}
 	}
 	// http status service
-	if m.opt.PortWeb > 0 {
+	if b, ok := toolbox.CheckTCPAddr(m.opt.WebAddr); ok {
 		userMap := make(map[string]string)
 		if !m.opt.DisableAuth {
 			for name, v := range m.opt.AuthConfig.Users {
@@ -210,28 +211,28 @@ func (m *MqttServer) Start() error {
 		}
 		err = m.svr.AddListener(NewHTTPStats(&listeners.Config{
 			ID:      "web",
-			Address: ":" + strconv.Itoa(m.opt.PortWeb),
+			Address: b.String(),
 		},
 			m.svr.Info,
 			m.svr.Clients,
 			&Lopt{
-				PortMqtt: m.opt.PortMqtt,
-				PortTLS:  m.opt.PortTLS,
-				PortWS:   m.opt.PortWS,
+				PortMqtt: m.opt.MqttAddr,
+				PortTLS:  m.opt.MqttTlsAddr,
+				PortWS:   m.opt.WSAddr,
 				Auth:     userMap,
 			},
 		))
 		if err != nil {
-			m.svr.Log.Error("HTTP service error: " + err.Error())
-			return err
+			m.opt.FileLogger.Error("[mqtt-broker] start web service error: " + err.Error())
 		}
 	}
 	// start serve
 	err = m.svr.Serve()
 	if err != nil {
-		m.svr.Log.Error("serve error: " + err.Error())
+		m.opt.FileLogger.Error("[mqtt-broker] serve error: " + err.Error())
 		return err
 	}
+	m.opt.FileLogger.System("[mqtt-broker] start success")
 	return nil
 }
 

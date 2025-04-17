@@ -153,27 +153,27 @@ var t3 = `{{define "body"}}
 
 type Lopt struct {
 	// mqtt port
-	PortMqtt int
+	PortMqtt string
 	// mqtt+tls port
-	PortTLS int
+	PortTLS string
 	// http status port
-	PortWeb int
+	PortWeb string
 	// websocket port
-	PortWS int
+	PortWS string
 	// Authfile string
 	Auth map[string]string
 }
 
 func (o *Lopt) String() string {
 	s := []string{}
-	if o.PortMqtt > 0 && o.PortMqtt < 65535 {
-		s = append(s, "mqtt: "+strconv.Itoa(o.PortMqtt))
+	if o.PortMqtt != "" {
+		s = append(s, "mqtt: "+o.PortMqtt)
 	}
-	if o.PortTLS > 0 && o.PortTLS < 65535 {
-		s = append(s, "mqtt+tls: "+strconv.Itoa(o.PortTLS))
+	if o.PortTLS != "" {
+		s = append(s, "mqtt+tls: "+o.PortTLS)
 	}
-	if o.PortWS > 0 && o.PortWS < 65535 {
-		s = append(s, "ws: "+strconv.Itoa(o.PortWS))
+	if o.PortWS != "" {
+		s = append(s, "ws: "+o.PortWS)
 	}
 	return strings.Join(s, "; ")
 }
