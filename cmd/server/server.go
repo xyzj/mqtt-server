@@ -236,6 +236,10 @@ func (m *MqttServer) Start() error {
 	return nil
 }
 
+func (m *MqttServer) CoreVersion() string {
+	return mqtt.Version
+}
+
 // Subscribe use inline client to receive message
 func (m *MqttServer) Subscribe(filter string, subscriptionId int, handler mqtt.InlineSubFn) error {
 	return m.svr.Subscribe(filter, subscriptionId, handler)
