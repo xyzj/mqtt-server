@@ -59,7 +59,7 @@ func FromAuthfile(authfile string, codedpwd bool) (*auth.Ledger, error) {
 			continue
 		}
 		if codedpwd {
-			pwd = rule.Password.TryDecode()
+			pwd = rule.Password.TryDeobfuscation()
 		} else {
 			pwd = rule.Password.String()
 		}

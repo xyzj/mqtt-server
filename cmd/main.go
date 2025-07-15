@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -25,6 +26,7 @@ var (
 	authfile    = flag.String("auth", "", "auth file path")
 	logfile     = flag.String("log2file", "", "logfile path")
 	disableAuth = flag.Bool("disable-auth", false, "disable auth check, ignore -auth")
+	codedPwd    = flag.Bool("coded-pwd", false, "The 'password' in the auth file is coded by package github.com/xyzj/toolbox/crypto")
 )
 
 type svrOpt struct {
@@ -137,6 +139,20 @@ func main() {
 			},
 		}).
 		AddCommand(&gocmd.Command{
+			Name:     "code-password",
+			Descript: "code password for auth.yaml",
+			RunWithExitCode: func(pi *gocmd.ProcInfo) int {
+				var pwd string
+				print("Password: ")
+				if _, err := fmt.Scanf("%s", &pwd); err != nil {
+					println(err.Error())
+					return 1
+				}
+				println(crypto.ObfuscationString(pwd))
+				return 0
+			},
+		}).
+		AddCommand(&gocmd.Command{
 			Name:     "genecc",
 			Descript: "generate ECC certificate files",
 			RunWithExitCode: func(pi *gocmd.ProcInfo) int {
@@ -179,7 +195,7 @@ func main() {
 	ac := &auth.Ledger{}
 	if *authfile != "" {
 		var err error
-		ac, err = server.FromAuthfile(*authfile, false)
+		ac, err = server.FromAuthfile(*authfile, *codedPwd)
 		if err != nil {
 			println(err.Error())
 			p.Exit(1)
